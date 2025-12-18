@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Sidebar from "../components/Sidebar";
 
 export default function AssignTask() {
   const [title, setTitle] = useState("");
@@ -8,19 +7,16 @@ export default function AssignTask() {
   const [priority, setPriority] = useState("Medium");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [description, setDescription] = useState("");
   const [error, setError] = useState("");
+
+  const token = localStorage.getItem("token");
 
   const assignTask = async () => {
     setError("");
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      window.location.href = "/login";
-      return;
-    }
-
-    if (!title || !assignedTo) {
-      setError("Title and Assigned To are required");
+    if (!title || !assignedTo || !startDate || !endDate) {
+      setError("Please fill all required fields");
       return;
     }
 
@@ -38,115 +34,117 @@ export default function AssignTask() {
           priority,
           startDate,
           endDate,
+          description,
         }),
       });
 
-      if (!res.ok) {
-        throw new Error("Task creation failed");
-      }
+      if (!res.ok) throw new Error();
 
-      // Clear form after success
       setTitle("");
       setAssignedTo("");
       setStatus("Todo");
       setPriority("Medium");
       setStartDate("");
       setEndDate("");
+      setDescription("");
 
-      alert("Task assigned successfully");
-    } catch (err) {
-      setError("Something went wrong. Try again.");
+      alert("Task assigned successfully 🚀");
+    } catch {
+      setError("Failed to assign task");
     }
   };
 
   return (
-    <div className="flex min-h-screen w-full">
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 flex items-center justify-center p-6">
+      <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+        
+        {/* Header */}
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-center">
+          <h2 className="text-3xl font-bold text-white">
+            ✨ Assign New Task
+          </h2>
+          <p className="text-indigo-100 mt-1">
+            Create and assign tasks effortlessly
+          </p>
+        </div>
 
-      {/* Page Content */}
-      <div className="flex-1 flex items-center justify-center bg-gray-100">
-        <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-xl">
-          <h2 className="text-2xl font-bold mb-6">Assign Task</h2>
-
+        {/* Body */}
+        <div className="p-8">
           {error && (
-            <p className="text-red-500 text-sm mb-4">{error}</p>
+            <div className="mb-4 text-center text-red-600 font-medium">
+              {error}
+            </div>
           )}
 
-          {/* Task Title */}
-          <input
-            className="w-full mb-3 p-3 border rounded"
-            placeholder="Task title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+          <div className="space-y-4">
+            <input
+              className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+              placeholder="Task Title *"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
 
-          {/* Assigned To */}
-          <input
-            className="w-full mb-3 p-3 border rounded"
-            placeholder="Assigned to"
-            value={assignedTo}
-            onChange={(e) => setAssignedTo(e.target.value)}
-          />
+            <input
+              className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+              placeholder="Assigned To *"
+              value={assignedTo}
+              onChange={(e) => setAssignedTo(e.target.value)}
+            />
 
-          {/* Status */}
-          <select
-            className="w-full mb-3 p-3 border rounded"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option>Todo</option>
-            <option>In Progress</option>
-            <option>Done</option>
-          </select>
+            <div className="grid grid-cols-2 gap-4">
+              <select
+                className="p-4 border rounded-xl focus:ring-2 focus:ring-indigo-500"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
+                <option>Todo</option>
+                <option>In Progress</option>
+                <option>Done</option>
+              </select>
 
-          {/* Priority */}
-          <select
-            className="w-full mb-4 p-3 border rounded"
-            value={priority}
-            onChange={(e) => setPriority(e.target.value)}
-          >
-            <option>Very High</option>
-            <option>High</option>
-            <option>Medium</option>
-            <option>Low</option>
-            <option>Very Low</option>
-          </select>
+              <select
+                className="p-4 border rounded-xl focus:ring-2 focus:ring-indigo-500"
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+              >
+                <option>Very High</option>
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+                <option>Very Low</option>
+              </select>
+            </div>
 
-          {/* Dates (LEFT / RIGHT) */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">
-                Start Date
-              </label>
+            <div className="grid grid-cols-2 gap-4">
               <input
                 type="date"
-                className="w-full p-3 border rounded"
+                className="p-4 border rounded-xl focus:ring-2 focus:ring-indigo-500"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
               />
-            </div>
-
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">
-                End Date
-              </label>
               <input
                 type="date"
-                className="w-full p-3 border rounded"
+                className="p-4 border rounded-xl focus:ring-2 focus:ring-indigo-500"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
               />
             </div>
-          </div>
 
-          {/* Submit */}
-          <button
-            onClick={assignTask}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded font-semibold"
-          >
-            Assign Task
-          </button>
+            <textarea
+              rows={4}
+              className="w-full p-4 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+              placeholder="Task Description (optional)"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+
+            <button
+              onClick={assignTask}
+              className="w-full mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 text-white py-4 rounded-xl text-lg font-bold shadow-lg transition"
+            >
+              Assign Task 🚀
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -5,13 +5,11 @@ const taskSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
-      trim: true,
     },
 
     assignedTo: {
       type: String,
       required: true,
-      trim: true,
     },
 
     status: {
@@ -28,12 +26,26 @@ const taskSchema = new mongoose.Schema(
 
     startDate: {
       type: Date,
-      default: null,
+      required: true,
     },
 
     endDate: {
       type: Date,
-      default: null,
+      required: true,
+    },
+
+    // 🔥 AI FIELDS (NEW)
+    aiDescription: {
+      type: String,
+    },
+
+    aiPoweredBy: {
+      type: String,
+      default: "Gemini AI",
+    },
+
+    aiGeneratedAt: {
+      type: Date,
     },
   },
   {

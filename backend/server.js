@@ -45,36 +45,30 @@ app.post("/register", async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res
-        .status(400)
-        .json({ message: "All fields are required" });
+      return res.status(400).json({
+        message: "All fields are required",
+      });
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "User already exists" });
+      return res.status(400).json({
+        message: "User already exists",
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = new User({
+    await User.create({
       name,
       email,
       password: hashedPassword,
     });
 
-    await user.save();
-
-    return res.json({
-      message: "User registered successfully",
-    });
+    res.json({ message: "User registered successfully" });
   } catch (err) {
     console.error(err);
-    return res
-      .status(500)
-      .json({ message: "Registration failed" });
+    res.status(500).json({ message: "Registration failed" });
   }
 });
 
@@ -84,26 +78,23 @@ app.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "All fields are required" });
+      return res.status(400).json({
+        message: "All fields are required",
+      });
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res
-        .status(401)
-        .json({ message: "Invalid credentials" });
+      return res.status(401).json({
+        message: "Invalid credentials",
+      });
     }
 
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res
-        .status(401)
-        .json({ message: "Invalid credentials" });
+      return res.status(401).json({
+        message: "Invalid credentials",
+      });
     }
 
     const token = jwt.sign(
@@ -112,7 +103,7 @@ app.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    return res.json({
+    res.json({
       token,
       user: {
         id: user._id,
@@ -122,36 +113,29 @@ app.post("/login", async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    return res
-      .status(500)
-      .json({ message: "Login failed" });
+    res.status(500).json({ message: "Login failed" });
   }
 });
 
-// ================== TASK ROUTES (PROTECTED) ==================
+// ================== TASK ROUTES ==================
 
 // GET TASKS
 app.get("/tasks", auth, async (req, res) => {
   try {
     const tasks = await Task.find();
-    return res.json(tasks);
+    res.json(tasks);
   } catch (err) {
-    return res
-      .status(500)
-      .json({ message: "Failed to fetch tasks" });
+    res.status(500).json({ message: "Failed to fetch tasks" });
   }
 });
 
-// CREATE TASK
+// CREATE TASK (MANUAL DESCRIPTION)
 app.post("/tasks", auth, async (req, res) => {
   try {
-    const task = new Task(req.body);
-    await task.save();
-    return res.json(task);
+    const task = await Task.create(req.body);
+    res.json(task);
   } catch (err) {
-    return res
-      .status(500)
-      .json({ message: "Failed to create task" });
+    res.status(500).json({ message: "Failed to create task" });
   }
 });
 
@@ -163,11 +147,9 @@ app.put("/tasks/:id", auth, async (req, res) => {
       req.body,
       { new: true }
     );
-    return res.json(updatedTask);
+    res.json(updatedTask);
   } catch (err) {
-    return res
-      .status(500)
-      .json({ message: "Failed to update task" });
+    res.status(500).json({ message: "Failed to update task" });
   }
 });
 
@@ -175,13 +157,9 @@ app.put("/tasks/:id", auth, async (req, res) => {
 app.delete("/tasks/:id", auth, async (req, res) => {
   try {
     await Task.findByIdAndDelete(req.params.id);
-    return res.json({
-      message: "Task deleted successfully",
-    });
+    res.json({ message: "Task deleted successfully" });
   } catch (err) {
-    return res
-      .status(500)
-      .json({ message: "Failed to delete task" });
+    res.status(500).json({ message: "Failed to delete task" });
   }
 });
 
@@ -194,4 +172,6 @@ mongoose
       console.log("Server running on port 5000");
     });
   })
-  .catch((err) => console.log(err));
+  .catch((err) => {
+    console.error("MongoDB error:", err);
+  });
