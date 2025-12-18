@@ -23,7 +23,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const res = await fetch("http://localhost:5000/tasks", {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/tasks`, {
       headers: { Authorization: token },
     });
 
