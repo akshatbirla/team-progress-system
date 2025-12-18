@@ -40,7 +40,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    await fetch(`http://localhost:5000/tasks/${id}`, {
+    await fetch(`${process.env.REACT_APP_API_URL}/tasks`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
