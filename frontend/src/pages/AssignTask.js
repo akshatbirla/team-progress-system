@@ -21,7 +21,7 @@ export default function AssignTask() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/tasks", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/tasks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
